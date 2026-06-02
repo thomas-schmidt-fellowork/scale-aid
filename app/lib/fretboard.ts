@@ -16,12 +16,17 @@ const CHROMATIC_SCALE = [
 export type PitchClass = (typeof CHROMATIC_SCALE)[number]["pitchClass"];
 export type NoteLabelMode = "sharp" | "full";
 export type ScaleQuality = "major" | "minor";
-export type ScaleFamily = "pentatonic";
+export type ScaleFamily = "pentatonic" | "blues" | "diatonic";
 
 export type ScaleDescriptor = {
   root: PitchClass;
   quality: ScaleQuality;
   family: ScaleFamily;
+};
+
+export type ScaleSelectorTarget = {
+  root: PitchClass;
+  rootFret: number;
 };
 
 export type FretWindow = {
@@ -48,6 +53,10 @@ export type GuitarString = {
   positions: FretPosition[];
 };
 
+export const PITCH_CLASSES: readonly PitchClass[] = CHROMATIC_SCALE.map(
+  (note) => note.pitchClass
+);
+
 export const STANDARD_TUNING: readonly Omit<GuitarString, "positions">[] = [
   { stringNumber: 6, name: "Low E", openPitchClass: "E" },
   { stringNumber: 5, name: "A", openPitchClass: "A" },
@@ -70,6 +79,14 @@ export const DEFAULT_PENTATONIC_PATTERN_WINDOW: FretWindow = {
 };
 
 const SCALE_INTERVALS: Record<ScaleFamily, Record<ScaleQuality, readonly number[]>> = {
+  blues: {
+    major: [0, 2, 3, 4, 7, 9],
+    minor: [0, 3, 5, 6, 7, 10],
+  },
+  diatonic: {
+    major: [0, 2, 4, 5, 7, 9, 11],
+    minor: [0, 2, 3, 5, 7, 8, 10],
+  },
   pentatonic: {
     major: [0, 2, 4, 7, 9],
     minor: [0, 3, 5, 7, 10],
@@ -96,6 +113,16 @@ export function getScalePitchClasses(descriptor: ScaleDescriptor): Set<PitchClas
   return new Set(intervals.map((interval) => getPitchClassAtInterval(descriptor.root, interval)));
 }
 
+export function getScaleAccentPitchClasses(descriptor: ScaleDescriptor): Set<PitchClass> {
+  if (descriptor.family !== "blues") {
+    return new Set();
+  }
+
+  const accentInterval = descriptor.quality === "major" ? 3 : 6;
+
+  return new Set([getPitchClassAtInterval(descriptor.root, accentInterval)]);
+}
+
 export function getFullFretWindow(maxFret: number): FretWindow {
   return {
     startFret: 0,
@@ -116,7 +143,7 @@ export function getExpandedFretWindow(
   };
 }
 
-export function getCollapsedPentatonicPatternWindow(
+export function getCollapsedScalePatternWindow(
   rootFret: number,
   quality: ScaleQuality,
   maxFret: number
@@ -146,6 +173,22 @@ function getPitchAtFret(openPitchClass: PitchClass, fret: number) {
   }
 
   return CHROMATIC_SCALE[(startIndex + fret) % CHROMATIC_SCALE.length];
+}
+
+export function getLowestFretForPitchClass(
+  openPitchClass: PitchClass,
+  targetPitchClass: PitchClass,
+  maxFret: number
+) {
+  const safeMaxFret = Math.max(0, Math.floor(maxFret));
+
+  for (let fret = 0; fret <= safeMaxFret; fret += 1) {
+    if (getPitchAtFret(openPitchClass, fret).pitchClass === targetPitchClass) {
+      return fret;
+    }
+  }
+
+  throw new Error(`Could not map ${targetPitchClass} on string ${openPitchClass}`);
 }
 
 export function getFretboard(maxFret = 24, noteLabelMode: NoteLabelMode = "sharp"): GuitarString[] {

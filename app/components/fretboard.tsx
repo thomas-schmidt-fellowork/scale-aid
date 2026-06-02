@@ -22,6 +22,23 @@ function getStringThickness(stringNumber: number) {
   return `${0.9 + stringNumber * 0.32}px`;
 }
 
+function getStringAccent(stringNumber: number) {
+  const accents: Record<number, { base: string; glow: string; edge: string }> = {
+    6: { base: "rgba(255,94,94,0.72)", glow: "rgba(255,94,94,0.2)", edge: "rgba(255,210,210,0.42)" },
+    5: { base: "rgba(255,214,74,0.72)", glow: "rgba(255,214,74,0.2)", edge: "rgba(255,240,188,0.42)" },
+    4: { base: "rgba(84,150,255,0.72)", glow: "rgba(84,150,255,0.2)", edge: "rgba(202,222,255,0.42)" },
+    3: { base: "rgba(255,156,72,0.72)", glow: "rgba(255,156,72,0.2)", edge: "rgba(255,222,190,0.42)" },
+    2: { base: "rgba(86,218,142,0.72)", glow: "rgba(86,218,142,0.2)", edge: "rgba(204,245,220,0.42)" },
+    1: { base: "rgba(192,118,255,0.72)", glow: "rgba(192,118,255,0.2)", edge: "rgba(232,210,255,0.42)" },
+  };
+
+  return accents[stringNumber] ?? {
+    base: "rgba(255,255,255,0.55)",
+    glow: "rgba(255,255,255,0.14)",
+    edge: "rgba(255,255,255,0.35)",
+  };
+}
+
 type NoteCellProps = {
   position: FretPosition;
   guitarString: GuitarString;
@@ -44,6 +61,7 @@ function OpenStringCell({
   isWithinActiveWindow,
 }: OpenStringCellProps) {
   const stringThickness = getStringThickness(guitarString.stringNumber);
+  const stringAccent = getStringAccent(guitarString.stringNumber);
   const isActiveScaleTone = isScaleTone && isWithinActiveWindow;
   const cellDimClasses = isWithinActiveWindow ? "opacity-100" : "opacity-45";
 
@@ -52,10 +70,12 @@ function OpenStringCell({
       className={`relative flex h-[clamp(2.2rem,8.2svh,4.4rem)] items-center justify-center pr-1 ${cellDimClasses}`}
     >
       <div
-        className={`absolute right-0 top-1/2 h-px w-[24%] -translate-y-1/2 ${
-          isActiveScaleTone ? "bg-[rgba(255,190,190,0.55)]" : "bg-white/28"
-        }`}
-        style={{ height: stringThickness }}
+        className="absolute right-0 top-1/2 h-px w-[24%] -translate-y-1/2 rounded-full"
+        style={{
+          height: stringThickness,
+          background: `linear-gradient(90deg, ${stringAccent.edge}, ${stringAccent.base} 24%, ${stringAccent.base})`,
+          boxShadow: `0 0 6px ${stringAccent.glow}`,
+        }}
       />
       <span className="relative z-10 inline-flex items-center justify-center rounded-full p-[2px]">
         <span
@@ -82,6 +102,7 @@ function NoteCell({
   const isNut = position.fret === 1;
   const isLastFret = position.fret === maxFret;
   const stringThickness = getStringThickness(guitarString.stringNumber);
+  const stringAccent = getStringAccent(guitarString.stringNumber);
   const isActiveScaleTone = isScaleTone && isWithinActiveWindow;
   const baseCellBackground =
     position.fret % 2 === 0
@@ -89,7 +110,7 @@ function NoteCell({
       : "bg-[linear-gradient(180deg,rgba(26,28,34,0.98),rgba(11,12,16,0.98))]";
   const highlightStateClasses = isActiveScaleTone
     ? "border-[color:rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.96)] text-[#fff1f1] shadow-[0_0_0_1px_rgba(255,120,120,0.18),0_0_12px_rgba(255,76,76,0.16)]"
-    : "border-[color:rgba(77,255,196,0.32)] bg-[rgba(3,4,7,0.97)] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_0_10px_rgba(77,255,196,0.08)]";
+    : "border-[color:rgba(214,219,230,0.16)] bg-[rgba(7,8,12,0.96)] text-[rgba(230,234,241,0.72)] shadow-[0_0_0_1px_rgba(255,255,255,0.06)]";
   const ringStateClasses = isActiveScaleTone
     ? "border-[rgba(255,82,82,0.45)] bg-[rgba(255,64,64,0.08)]"
     : "border-transparent bg-transparent";
@@ -99,7 +120,7 @@ function NoteCell({
     <div
       className={`relative flex h-[clamp(2.2rem,8.2svh,4.4rem)] items-center justify-center overflow-hidden ${baseCellBackground} ${cellDimClasses} ${
         isNut
-          ? "border-l-[5px] border-l-[var(--accent)]"
+          ? "border-l-[5px] border-l-[rgba(206,212,224,0.42)]"
           : "border-l border-l-white/28"
       } ${isLastFret ? "border-r border-r-white/28" : ""}`}
     >
@@ -108,12 +129,12 @@ function NoteCell({
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_28%,transparent_72%,rgba(0,0,0,0.2))]" />
       <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.02)]" />
       <div
-        className={`absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.08)] ${
-          isActiveScaleTone
-            ? "bg-[linear-gradient(90deg,rgba(255,170,170,0.18),rgba(255,225,225,0.98),rgba(255,170,170,0.18))]"
-            : "bg-[linear-gradient(90deg,rgba(255,255,255,0.18),rgba(255,255,255,0.95),rgba(255,255,255,0.18))]"
-        }`}
-        style={{ height: stringThickness }}
+        className="absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-full"
+        style={{
+          height: stringThickness,
+          background: `linear-gradient(90deg, ${stringAccent.edge} 0%, ${stringAccent.base} 14%, ${stringAccent.base} 86%, ${stringAccent.edge} 100%)`,
+          boxShadow: `0 0 6px ${stringAccent.glow}`,
+        }}
       />
       <span className={`relative z-10 inline-flex rounded-full border p-[2px] ${ringStateClasses}`}>
         <span className={`inline-flex min-w-0 max-w-[94%] items-center justify-center rounded-full border px-[clamp(0.08rem,0.22vw,0.4rem)] py-[clamp(0.08rem,0.16vw,0.2rem)] text-[clamp(0.3rem,0.76vw,0.82rem)] font-semibold leading-none tracking-[-0.02em] sm:px-2 sm:py-0.75 ${highlightStateClasses}`}>

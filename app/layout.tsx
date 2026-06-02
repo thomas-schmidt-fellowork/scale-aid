@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import AppShell from "@/app/components/app-shell";
 import { Geist, Geist_Mono } from "next/font/google";
+import { getSiteUrl, siteDescription, siteName } from "@/app/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,8 +14,45 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Scale Aid",
-  description: "Scale Aid helps you navigate the guitar fretboard with a clean note map through fret 24.",
+  metadataBase: getSiteUrl(),
+  title: {
+    default: siteName,
+    template: `%s | ${siteName}`,
+  },
+  description: siteDescription,
+  applicationName: siteName,
+  keywords: [
+    "gitarrenskalen lernen",
+    "gitarre scales üben",
+    "gitarre pentatonik trainer",
+    "blues scale gitarre",
+    "fretboard trainer",
+  ],
+  category: "education",
+  openGraph: {
+    type: "website",
+    locale: "de_DE",
+    siteName,
+    title: siteName,
+    description: siteDescription,
+    url: "/",
+  },
+  twitter: {
+    card: "summary",
+    title: siteName,
+    description: siteDescription,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export default function RootLayout({
@@ -25,12 +62,10 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="de"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">
-        <AppShell>{children}</AppShell>
-      </body>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from "next/link";
 import * as Popover from "@radix-ui/react-popover";
 import * as Switch from "@radix-ui/react-switch";
 import * as Tooltip from "@radix-ui/react-tooltip";
@@ -170,12 +171,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-full flex-col">
         <header className="border-b border-white/10 bg-[rgba(5,7,11,0.78)] backdrop-blur-xl">
           <div className="mx-auto grid h-14 w-full max-w-[100rem] grid-cols-[auto_1fr_auto] items-center gap-4 px-4 sm:px-6">
-            <div className="flex items-center gap-3">
+            <Link href="/" aria-label="Zur Startseite" className="flex items-center gap-3">
               <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[var(--accent)] shadow-[0_0_12px_rgba(77,255,196,0.4)]" />
               <span className="text-sm font-semibold uppercase tracking-[0.28em] text-white">
                 Scale Aid
               </span>
-            </div>
+            </Link>
 
             <div className="min-w-0 flex justify-center">
               <Popover.Root open={isScaleSummaryOpen} onOpenChange={setIsScaleSummaryOpen}>

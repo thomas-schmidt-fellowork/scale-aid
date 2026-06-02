@@ -29,6 +29,11 @@ export type FretWindow = {
   endFret: number;
 };
 
+export type PatternExpansion = {
+  leftSteps: number;
+  rightSteps: number;
+};
+
 export type FretPosition = {
   fret: number;
   pitchClass: PitchClass;
@@ -56,6 +61,12 @@ export const DEFAULT_LEARNING_SCALE: ScaleDescriptor = {
   root: "A",
   quality: "minor",
   family: "pentatonic",
+};
+
+export const DEFAULT_MAX_FRET = 24;
+export const DEFAULT_PENTATONIC_PATTERN_WINDOW: FretWindow = {
+  startFret: 5,
+  endFret: 8,
 };
 
 const SCALE_INTERVALS: Record<ScaleFamily, Record<ScaleQuality, readonly number[]>> = {
@@ -89,6 +100,19 @@ export function getFullFretWindow(maxFret: number): FretWindow {
   return {
     startFret: 0,
     endFret: Math.max(0, Math.floor(maxFret)),
+  };
+}
+
+export function getExpandedFretWindow(
+  baseWindow: FretWindow,
+  expansion: PatternExpansion,
+  maxFret: number
+): FretWindow {
+  const safeMaxFret = Math.max(0, Math.floor(maxFret));
+
+  return {
+    startFret: Math.max(0, baseWindow.startFret - expansion.leftSteps),
+    endFret: Math.min(safeMaxFret, baseWindow.endFret + expansion.rightSteps),
   };
 }
 

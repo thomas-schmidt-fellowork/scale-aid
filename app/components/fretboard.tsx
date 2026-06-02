@@ -1,12 +1,13 @@
 'use client';
 
 import { Fragment } from "react";
+import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 
 import { useDisplaySettings } from "@/app/components/app-shell";
 import {
   DEFAULT_LEARNING_SCALE,
+  DEFAULT_MAX_FRET,
   getFretboard,
-  getFullFretWindow,
   getScalePitchClasses,
   isFretInWindow,
   type FretPosition,
@@ -43,6 +44,7 @@ function OpenStringCell({
   isWithinActiveWindow,
 }: OpenStringCellProps) {
   const stringThickness = getStringThickness(guitarString.stringNumber);
+  const isActiveScaleTone = isScaleTone && isWithinActiveWindow;
   const cellDimClasses = isWithinActiveWindow ? "opacity-100" : "opacity-45";
 
   return (
@@ -51,14 +53,14 @@ function OpenStringCell({
     >
       <div
         className={`absolute right-0 top-1/2 h-px w-[24%] -translate-y-1/2 ${
-          isScaleTone ? "bg-[rgba(255,190,190,0.55)]" : "bg-white/28"
+          isActiveScaleTone ? "bg-[rgba(255,190,190,0.55)]" : "bg-white/28"
         }`}
         style={{ height: stringThickness }}
       />
       <span className="relative z-10 inline-flex items-center justify-center rounded-full p-[2px]">
         <span
           className={`inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-[clamp(0.12rem,0.24vw,0.35rem)] py-[clamp(0.08rem,0.16vw,0.18rem)] text-[clamp(0.78rem,1.55vw,1.45rem)] font-semibold leading-none ${
-            isScaleTone
+            isActiveScaleTone
               ? "border border-[rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.45)] text-[#fff1f1] shadow-[0_0_0_2px_rgba(255,92,92,0.24)]"
               : "text-white"
           }`}
@@ -80,14 +82,15 @@ function NoteCell({
   const isNut = position.fret === 1;
   const isLastFret = position.fret === maxFret;
   const stringThickness = getStringThickness(guitarString.stringNumber);
+  const isActiveScaleTone = isScaleTone && isWithinActiveWindow;
   const baseCellBackground =
     position.fret % 2 === 0
       ? "bg-[linear-gradient(180deg,rgba(38,40,46,0.98),rgba(19,20,26,0.98))]"
       : "bg-[linear-gradient(180deg,rgba(26,28,34,0.98),rgba(11,12,16,0.98))]";
-  const highlightStateClasses = isScaleTone
+  const highlightStateClasses = isActiveScaleTone
     ? "border-[color:rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.96)] text-[#fff1f1] shadow-[0_0_0_1px_rgba(255,120,120,0.18),0_0_12px_rgba(255,76,76,0.16)]"
     : "border-[color:rgba(77,255,196,0.32)] bg-[rgba(3,4,7,0.97)] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_0_10px_rgba(77,255,196,0.08)]";
-  const ringStateClasses = isScaleTone
+  const ringStateClasses = isActiveScaleTone
     ? "border-[rgba(255,82,82,0.45)] bg-[rgba(255,64,64,0.08)]"
     : "border-transparent bg-transparent";
   const cellDimClasses = isWithinActiveWindow ? "opacity-100" : "opacity-45";
@@ -106,7 +109,7 @@ function NoteCell({
       <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.02)]" />
       <div
         className={`absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.08)] ${
-          isScaleTone
+          isActiveScaleTone
             ? "bg-[linear-gradient(90deg,rgba(255,170,170,0.18),rgba(255,225,225,0.98),rgba(255,170,170,0.18))]"
             : "bg-[linear-gradient(90deg,rgba(255,255,255,0.18),rgba(255,255,255,0.95),rgba(255,255,255,0.18))]"
         }`}
@@ -121,20 +124,70 @@ function NoteCell({
   );
 }
 
-export default function Fretboard({ maxFret = 24 }: FretboardProps) {
-  const { noteLabelMode } = useDisplaySettings();
+export default function Fretboard({ maxFret = DEFAULT_MAX_FRET }: FretboardProps) {
+  const {
+    activePatternWindow,
+    canExpandPatternLeft,
+    canExpandPatternRight,
+    noteLabelMode,
+    resetPatternWindow,
+    stepPatternLeft,
+    stepPatternRight,
+  } = useDisplaySettings();
   const strings = getFretboard(maxFret, noteLabelMode);
   const activeScalePitchClasses = getScalePitchClasses(DEFAULT_LEARNING_SCALE);
-  const activeFretWindow = getFullFretWindow(maxFret);
   const displayStrings = [...strings].reverse();
   const fretNumbers = Array.from({ length: maxFret }, (_, index) => index + 1);
   const gridTemplateColumns = `clamp(1.9rem, 4.5vw, 3.2rem) repeat(${maxFret}, minmax(0, 1fr))`;
+  const resetGridColumn = `${activePatternWindow.startFret + 1} / ${activePatternWindow.endFret + 2}`;
 
   return (
     <section className="flex h-full w-full items-center justify-center px-1.5 py-2 sm:px-3 sm:py-3">
       <div className="w-full rounded-[1.45rem] border border-white/24 bg-[linear-gradient(180deg,rgba(24,26,32,0.98),rgba(8,9,13,0.99))] p-[clamp(0.35rem,0.9vw,0.7rem)] shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_16px_50px_rgba(0,0,0,0.62)]">
         <div className="rounded-[1.15rem] border border-white/12 bg-[linear-gradient(180deg,rgba(14,15,20,0.98),rgba(5,6,9,0.98))] p-[clamp(0.25rem,0.65vw,0.55rem)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_0_0_1px_rgba(255,255,255,0.03)]">
           <div className="grid gap-y-1.5 sm:gap-y-2" style={{ gridTemplateColumns }}>
+            <div className="col-span-full relative grid h-8" style={{ gridTemplateColumns }}>
+              <div />
+              {fretNumbers.map((fret) => (
+                <div key={`control-${fret}`} className="flex h-8 items-center justify-center">
+                  {fret === activePatternWindow.startFret ? (
+                    <button
+                      type="button"
+                      onClick={stepPatternLeft}
+                      disabled={!canExpandPatternLeft}
+                      aria-label="Pattern nach links erweitern"
+                      className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-[rgba(10,12,17,0.92)] text-[var(--muted-strong)] shadow-[0_8px_18px_rgba(0,0,0,0.28)] transition hover:border-white/18 hover:bg-white/[0.05] hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
+                    </button>
+                  ) : fret === activePatternWindow.endFret ? (
+                    <button
+                      type="button"
+                      onClick={stepPatternRight}
+                      disabled={!canExpandPatternRight}
+                      aria-label="Pattern nach rechts erweitern"
+                      className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-[rgba(10,12,17,0.92)] text-[var(--muted-strong)] shadow-[0_8px_18px_rgba(0,0,0,0.28)] transition hover:border-white/18 hover:bg-white/[0.05] hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5" strokeWidth={2.25} />
+                    </button>
+                  ) : null}
+                </div>
+              ))}
+
+              <div className="pointer-events-none absolute inset-0 grid" style={{ gridTemplateColumns }}>
+                <div />
+                <div className="flex h-8 items-center justify-center" style={{ gridColumn: resetGridColumn }}>
+                  <button
+                    type="button"
+                    onClick={resetPatternWindow}
+                    aria-label="Pattern auf Basismuster zurücksetzen"
+                    className="pointer-events-auto inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-[rgba(10,12,17,0.92)] text-white/88 shadow-[0_8px_18px_rgba(0,0,0,0.28)] transition hover:border-white/18 hover:bg-white/[0.05] hover:text-white"
+                  >
+                    <RotateCcw className="h-3 w-3" strokeWidth={2.15} />
+                  </button>
+                </div>
+              </div>
+            </div>
 
             {displayStrings.map((guitarString) => (
               <Fragment key={guitarString.stringNumber}>
@@ -144,7 +197,7 @@ export default function Fretboard({ maxFret = 24 }: FretboardProps) {
                   isScaleTone={activeScalePitchClasses.has(guitarString.positions[0].pitchClass)}
                   isWithinActiveWindow={isFretInWindow(
                     guitarString.positions[0].fret,
-                    activeFretWindow
+                    activePatternWindow
                   )}
                 />
 
@@ -155,7 +208,7 @@ export default function Fretboard({ maxFret = 24 }: FretboardProps) {
                     guitarString={guitarString}
                     maxFret={maxFret}
                     isScaleTone={activeScalePitchClasses.has(position.pitchClass)}
-                    isWithinActiveWindow={isFretInWindow(position.fret, activeFretWindow)}
+                    isWithinActiveWindow={isFretInWindow(position.fret, activePatternWindow)}
                   />
                 ))}
               </Fragment>

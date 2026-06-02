@@ -310,9 +310,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
                             onCheckedChange={(checked) =>
                               setNoteLabelMode(checked ? "sharp" : "full")
                             }
-                            className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border border-white/14 bg-white/[0.06] p-[3px] shadow-[inset_0_1px_2px_rgba(0,0,0,0.35)] outline-none transition data-[state=checked]:border-[color:rgba(77,255,196,0.36)] data-[state=checked]:bg-[rgba(77,255,196,0.16)]"
+                            className="relative inline-flex h-4 w-8 shrink-0 cursor-pointer items-center rounded-full border border-white/10 bg-white/[0.06] p-[2px] shadow-[inset_0_1px_1px_rgba(0,0,0,0.28)] outline-none transition focus-visible:ring-2 focus-visible:ring-white/20 data-[state=checked]:border-[color:rgba(77,255,196,0.3)] data-[state=checked]:bg-[rgba(77,255,196,0.18)]"
                           >
-                            <Switch.Thumb className="block h-4 w-4 rounded-full bg-white shadow-[0_4px_10px_rgba(0,0,0,0.35)] transition-transform duration-200 will-change-transform data-[state=checked]:translate-x-5 data-[state=checked]:bg-[var(--accent)]" />
+                            <Switch.Thumb className="block h-3 w-3 rounded-full bg-white/92 shadow-[0_1px_4px_rgba(0,0,0,0.28)] transition-transform duration-200 will-change-transform data-[state=checked]:translate-x-4 data-[state=checked]:bg-[var(--accent)]" />
                           </Switch.Root>
 
                           <label

@@ -1,19 +1,20 @@
 const CHROMATIC_SCALE = [
-  { pitchClass: "C", label: "C" },
-  { pitchClass: "C#", label: "C#" },
-  { pitchClass: "D", label: "D" },
-  { pitchClass: "D#", label: "D#" },
-  { pitchClass: "E", label: "E" },
-  { pitchClass: "F", label: "F" },
-  { pitchClass: "F#", label: "F#" },
-  { pitchClass: "G", label: "G" },
-  { pitchClass: "G#", label: "G#" },
-  { pitchClass: "A", label: "A" },
-  { pitchClass: "A#", label: "A#" },
-  { pitchClass: "B", label: "B" },
+  { pitchClass: "C", shortLabel: "C", fullLabel: "C" },
+  { pitchClass: "C#", shortLabel: "C#", fullLabel: "C#/Db" },
+  { pitchClass: "D", shortLabel: "D", fullLabel: "D" },
+  { pitchClass: "D#", shortLabel: "D#", fullLabel: "D#/Eb" },
+  { pitchClass: "E", shortLabel: "E", fullLabel: "E" },
+  { pitchClass: "F", shortLabel: "F", fullLabel: "F" },
+  { pitchClass: "F#", shortLabel: "F#", fullLabel: "F#/Gb" },
+  { pitchClass: "G", shortLabel: "G", fullLabel: "G" },
+  { pitchClass: "G#", shortLabel: "G#", fullLabel: "G#/Ab" },
+  { pitchClass: "A", shortLabel: "A", fullLabel: "A" },
+  { pitchClass: "A#", shortLabel: "A#", fullLabel: "A#/Bb" },
+  { pitchClass: "B", shortLabel: "B", fullLabel: "B" },
 ] as const;
 
 export type PitchClass = (typeof CHROMATIC_SCALE)[number]["pitchClass"];
+export type NoteLabelMode = "sharp" | "full";
 
 export type FretPosition = {
   fret: number;
@@ -52,7 +53,7 @@ function getPitchAtFret(openPitchClass: PitchClass, fret: number) {
   return CHROMATIC_SCALE[(startIndex + fret) % CHROMATIC_SCALE.length];
 }
 
-export function getFretboard(maxFret = 24): GuitarString[] {
+export function getFretboard(maxFret = 24, noteLabelMode: NoteLabelMode = "sharp"): GuitarString[] {
   const safeMaxFret = Number.isFinite(maxFret) ? Math.max(0, Math.floor(maxFret)) : 24;
 
   return STANDARD_TUNING.map((guitarString) => ({
@@ -63,7 +64,7 @@ export function getFretboard(maxFret = 24): GuitarString[] {
       return {
         fret,
         pitchClass: pitch.pitchClass,
-        label: pitch.label,
+        label: noteLabelMode === "full" ? pitch.fullLabel : pitch.shortLabel,
         isOpen: fret === 0,
       };
     }),

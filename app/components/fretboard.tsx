@@ -1,5 +1,8 @@
+'use client';
+
 import { Fragment } from "react";
 
+import { useDisplaySettings } from "@/app/components/app-shell";
 import { getFretboard } from "@/app/lib/fretboard";
 
 type FretboardProps = {
@@ -11,7 +14,8 @@ function getStringThickness(stringNumber: number) {
 }
 
 export default function Fretboard({ maxFret = 24 }: FretboardProps) {
-  const strings = getFretboard(maxFret);
+  const { noteLabelMode } = useDisplaySettings();
+  const strings = getFretboard(maxFret, noteLabelMode);
   const displayStrings = [...strings].reverse();
   const fretNumbers = Array.from({ length: maxFret }, (_, index) => index + 1);
   const gridTemplateColumns = `clamp(1.9rem, 4.5vw, 3.2rem) repeat(${maxFret}, minmax(0, 1fr))`;

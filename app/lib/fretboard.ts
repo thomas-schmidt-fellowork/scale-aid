@@ -116,6 +116,24 @@ export function getExpandedFretWindow(
   };
 }
 
+export function getCollapsedPentatonicPatternWindow(
+  rootFret: number,
+  quality: ScaleQuality,
+  maxFret: number
+): FretWindow {
+  const safeMaxFret = Math.max(0, Math.floor(maxFret));
+  const preferredStartFret = quality === "minor" ? rootFret : rootFret - 1;
+  const normalizedStartFret = Math.max(
+    0,
+    Math.min(Math.floor(preferredStartFret), Math.max(0, safeMaxFret - 3))
+  );
+
+  return {
+    startFret: normalizedStartFret,
+    endFret: Math.min(safeMaxFret, normalizedStartFret + 3),
+  };
+}
+
 export function isFretInWindow(fret: number, window: FretWindow): boolean {
   return fret >= window.startFret && fret <= window.endFret;
 }

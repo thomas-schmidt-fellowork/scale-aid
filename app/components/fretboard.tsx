@@ -1,17 +1,18 @@
 'use client';
 
-import { Fragment } from "react";
+import * as Popover from "@radix-ui/react-popover";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { Fragment, type ReactNode } from "react";
 
 import { useDisplaySettings } from "@/app/components/app-shell";
 import {
-  DEFAULT_LEARNING_SCALE,
   DEFAULT_MAX_FRET,
   getFretboard,
   getScalePitchClasses,
   isFretInWindow,
   type FretPosition,
   type GuitarString,
+  type ScaleQuality,
 } from "@/app/lib/fretboard";
 
 type FretboardProps = {
@@ -45,6 +46,7 @@ type NoteCellProps = {
   maxFret: number;
   isScaleTone: boolean;
   isWithinActiveWindow: boolean;
+  onSelectScale?: (quality: ScaleQuality) => void;
 };
 
 type OpenStringCellProps = {
@@ -52,13 +54,62 @@ type OpenStringCellProps = {
   guitarString: GuitarString;
   isScaleTone: boolean;
   isWithinActiveWindow: boolean;
+  onSelectScale?: (quality: ScaleQuality) => void;
 };
+
+type ScaleRootSelectorProps = {
+  label: string;
+  onSelectScale: (quality: ScaleQuality) => void;
+  children: ReactNode;
+};
+
+function ScaleRootSelector({ label, onSelectScale, children }: ScaleRootSelectorProps) {
+  return (
+    <Popover.Root>
+      <Popover.Trigger asChild>{children}</Popover.Trigger>
+
+      <Popover.Portal>
+        <Popover.Content
+          side="top"
+          align="center"
+          sideOffset={10}
+          className="z-50 w-[min(15rem,calc(100vw-1.5rem))] rounded-2xl border border-white/12 bg-[linear-gradient(180deg,rgba(15,17,23,0.98),rgba(8,9,13,0.98))] p-2.5 shadow-[0_24px_60px_rgba(0,0,0,0.48),0_0_0_1px_rgba(255,255,255,0.04)] backdrop-blur-xl outline-none"
+        >
+          <div className="space-y-1.5">
+            <Popover.Close asChild>
+              <button
+                type="button"
+                onClick={() => onSelectScale("major")}
+                className="flex w-full items-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-left text-sm font-medium text-white transition hover:border-white/18 hover:bg-white/[0.06]"
+              >
+                {label} Dur Pentatonik
+              </button>
+            </Popover.Close>
+
+            <Popover.Close asChild>
+              <button
+                type="button"
+                onClick={() => onSelectScale("minor")}
+                className="flex w-full items-center rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-left text-sm font-medium text-white transition hover:border-white/18 hover:bg-white/[0.06]"
+              >
+                {label} Moll Pentatonik
+              </button>
+            </Popover.Close>
+          </div>
+
+          <Popover.Arrow className="fill-[rgba(15,17,23,0.98)]" />
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
+  );
+}
 
 function OpenStringCell({
   position,
   guitarString,
   isScaleTone,
   isWithinActiveWindow,
+  onSelectScale,
 }: OpenStringCellProps) {
   const stringThickness = getStringThickness(guitarString.stringNumber);
   const stringAccent = getStringAccent(guitarString.stringNumber);
@@ -77,17 +128,37 @@ function OpenStringCell({
           boxShadow: `0 0 6px ${stringAccent.glow}`,
         }}
       />
-      <span className="relative z-10 inline-flex items-center justify-center rounded-full p-[2px]">
-        <span
-          className={`inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-[clamp(0.12rem,0.24vw,0.35rem)] py-[clamp(0.08rem,0.16vw,0.18rem)] text-[clamp(0.78rem,1.55vw,1.45rem)] font-semibold leading-none ${
-            isActiveScaleTone
-              ? "border border-[rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.45)] text-[#fff1f1] shadow-[0_0_0_2px_rgba(255,92,92,0.24)]"
-              : "text-white"
-          }`}
-        >
-          {position.label}
+      {onSelectScale ? (
+        <ScaleRootSelector label={position.label} onSelectScale={onSelectScale}>
+          <button
+            type="button"
+            aria-label={`${position.label} als neue Tonart waehlen`}
+            className="relative z-10 inline-flex items-center justify-center rounded-full p-[2px] transition hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
+          >
+            <span
+              className={`inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-[clamp(0.12rem,0.24vw,0.35rem)] py-[clamp(0.08rem,0.16vw,0.18rem)] text-[clamp(0.78rem,1.55vw,1.45rem)] font-semibold leading-none ${
+                isActiveScaleTone
+                  ? "border border-[rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.45)] text-[#fff1f1] shadow-[0_0_0_2px_rgba(255,92,92,0.24)]"
+                  : "text-white"
+              }`}
+            >
+              {position.label}
+            </span>
+          </button>
+        </ScaleRootSelector>
+      ) : (
+        <span className="relative z-10 inline-flex items-center justify-center rounded-full p-[2px]">
+          <span
+            className={`inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-[clamp(0.12rem,0.24vw,0.35rem)] py-[clamp(0.08rem,0.16vw,0.18rem)] text-[clamp(0.78rem,1.55vw,1.45rem)] font-semibold leading-none ${
+              isActiveScaleTone
+                ? "border border-[rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.45)] text-[#fff1f1] shadow-[0_0_0_2px_rgba(255,92,92,0.24)]"
+                : "text-white"
+            }`}
+          >
+            {position.label}
+          </span>
         </span>
-      </span>
+      )}
     </div>
   );
 }
@@ -98,6 +169,7 @@ function NoteCell({
   maxFret,
   isScaleTone,
   isWithinActiveWindow,
+  onSelectScale,
 }: NoteCellProps) {
   const isNut = position.fret === 1;
   const isLastFret = position.fret === maxFret;
@@ -136,11 +208,25 @@ function NoteCell({
           boxShadow: `0 0 6px ${stringAccent.glow}`,
         }}
       />
-      <span className={`relative z-10 inline-flex rounded-full border p-[2px] ${ringStateClasses}`}>
-        <span className={`inline-flex min-w-0 max-w-[94%] items-center justify-center rounded-full border px-[clamp(0.08rem,0.22vw,0.4rem)] py-[clamp(0.08rem,0.16vw,0.2rem)] text-[clamp(0.3rem,0.76vw,0.82rem)] font-semibold leading-none tracking-[-0.02em] sm:px-2 sm:py-0.75 ${highlightStateClasses}`}>
-          {position.label}
+      {onSelectScale ? (
+        <ScaleRootSelector label={position.label} onSelectScale={onSelectScale}>
+          <button
+            type="button"
+            aria-label={`${position.label} als neue Tonart waehlen`}
+            className={`relative z-10 inline-flex rounded-full border p-[2px] transition hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 ${ringStateClasses}`}
+          >
+            <span className={`inline-flex min-w-0 max-w-[94%] items-center justify-center rounded-full border px-[clamp(0.08rem,0.22vw,0.4rem)] py-[clamp(0.08rem,0.16vw,0.2rem)] text-[clamp(0.3rem,0.76vw,0.82rem)] font-semibold leading-none tracking-[-0.02em] sm:px-2 sm:py-0.75 ${highlightStateClasses}`}>
+              {position.label}
+            </span>
+          </button>
+        </ScaleRootSelector>
+      ) : (
+        <span className={`relative z-10 inline-flex rounded-full border p-[2px] ${ringStateClasses}`}>
+          <span className={`inline-flex min-w-0 max-w-[94%] items-center justify-center rounded-full border px-[clamp(0.08rem,0.22vw,0.4rem)] py-[clamp(0.08rem,0.16vw,0.2rem)] text-[clamp(0.3rem,0.76vw,0.82rem)] font-semibold leading-none tracking-[-0.02em] sm:px-2 sm:py-0.75 ${highlightStateClasses}`}>
+            {position.label}
+          </span>
         </span>
-      </span>
+      )}
     </div>
   );
 }
@@ -150,13 +236,15 @@ export default function Fretboard({ maxFret = DEFAULT_MAX_FRET }: FretboardProps
     activePatternWindow,
     canExpandPatternLeft,
     canExpandPatternRight,
+    learningScale,
     noteLabelMode,
     resetPatternWindow,
+    selectLearningScale,
     stepPatternLeft,
     stepPatternRight,
   } = useDisplaySettings();
   const strings = getFretboard(maxFret, noteLabelMode);
-  const activeScalePitchClasses = getScalePitchClasses(DEFAULT_LEARNING_SCALE);
+  const activeScalePitchClasses = getScalePitchClasses(learningScale);
   const displayStrings = [...strings].reverse();
   const fretNumbers = Array.from({ length: maxFret }, (_, index) => index + 1);
   const gridTemplateColumns = `clamp(1.9rem, 4.5vw, 3.2rem) repeat(${maxFret}, minmax(0, 1fr))`;
@@ -220,6 +308,16 @@ export default function Fretboard({ maxFret = DEFAULT_MAX_FRET }: FretboardProps
                     guitarString.positions[0].fret,
                     activePatternWindow
                   )}
+                  onSelectScale={
+                    guitarString.stringNumber === 6
+                      ? (quality) =>
+                          selectLearningScale(
+                            guitarString.positions[0].pitchClass,
+                            quality,
+                            guitarString.positions[0].fret
+                          )
+                      : undefined
+                  }
                 />
 
                 {guitarString.positions.slice(1).map((position) => (
@@ -230,6 +328,11 @@ export default function Fretboard({ maxFret = DEFAULT_MAX_FRET }: FretboardProps
                     maxFret={maxFret}
                     isScaleTone={activeScalePitchClasses.has(position.pitchClass)}
                     isWithinActiveWindow={isFretInWindow(position.fret, activePatternWindow)}
+                    onSelectScale={
+                      guitarString.stringNumber === 6
+                        ? (quality) => selectLearningScale(position.pitchClass, quality, position.fret)
+                        : undefined
+                    }
                   />
                 ))}
               </Fragment>

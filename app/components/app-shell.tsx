@@ -13,20 +13,27 @@ import {
 } from "react";
 
 import {
+  DEFAULT_LEARNING_SCALE,
   DEFAULT_MAX_FRET,
   DEFAULT_PENTATONIC_PATTERN_WINDOW,
+  getCollapsedPentatonicPatternWindow,
   getExpandedFretWindow,
   type FretWindow,
   type NoteLabelMode,
   type PatternExpansion,
+  type PitchClass,
+  type ScaleDescriptor,
+  type ScaleQuality,
 } from "@/app/lib/fretboard";
 
 type DisplaySettingsContextValue = {
   activePatternWindow: FretWindow;
   canExpandPatternLeft: boolean;
   canExpandPatternRight: boolean;
+  learningScale: ScaleDescriptor;
   noteLabelMode: NoteLabelMode;
   resetPatternWindow: () => void;
+  selectLearningScale: (root: PitchClass, quality: ScaleQuality, rootFret: number) => void;
   stepPatternLeft: () => void;
   stepPatternRight: () => void;
   setNoteLabelMode: (mode: NoteLabelMode) => void;
@@ -45,14 +52,18 @@ export function useDisplaySettings() {
 }
 
 export default function AppShell({ children }: { children: ReactNode }) {
+  const [learningScale, setLearningScale] = useState<ScaleDescriptor>(DEFAULT_LEARNING_SCALE);
   const [noteLabelMode, setNoteLabelMode] = useState<NoteLabelMode>("sharp");
+  const [basePatternWindow, setBasePatternWindow] = useState<FretWindow>(
+    DEFAULT_PENTATONIC_PATTERN_WINDOW
+  );
   const [patternExpansion, setPatternExpansion] = useState<PatternExpansion>({
     leftSteps: 0,
     rightSteps: 0,
   });
   const compressedDisplayId = useId();
   const activePatternWindow = getExpandedFretWindow(
-    DEFAULT_PENTATONIC_PATTERN_WINDOW,
+    basePatternWindow,
     patternExpansion,
     DEFAULT_MAX_FRET
   );
@@ -77,14 +88,24 @@ export default function AppShell({ children }: { children: ReactNode }) {
     setPatternExpansion({ leftSteps: 0, rightSteps: 0 });
   }
 
+  function selectLearningScale(root: PitchClass, quality: ScaleQuality, rootFret: number) {
+    setLearningScale({ root, quality, family: "pentatonic" });
+    setBasePatternWindow(
+      getCollapsedPentatonicPatternWindow(rootFret, quality, DEFAULT_MAX_FRET)
+    );
+    setPatternExpansion({ leftSteps: 0, rightSteps: 0 });
+  }
+
   return (
     <DisplaySettingsContext.Provider
       value={{
         activePatternWindow,
         canExpandPatternLeft,
         canExpandPatternRight,
+        learningScale,
         noteLabelMode,
         resetPatternWindow,
+        selectLearningScale,
         stepPatternLeft,
         stepPatternRight,
         setNoteLabelMode,

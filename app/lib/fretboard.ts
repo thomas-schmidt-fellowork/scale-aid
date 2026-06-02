@@ -15,6 +15,19 @@ const CHROMATIC_SCALE = [
 
 export type PitchClass = (typeof CHROMATIC_SCALE)[number]["pitchClass"];
 export type NoteLabelMode = "sharp" | "full";
+export type ScaleQuality = "major" | "minor";
+export type ScaleFamily = "pentatonic";
+
+export type ScaleDescriptor = {
+  root: PitchClass;
+  quality: ScaleQuality;
+  family: ScaleFamily;
+};
+
+export type FretWindow = {
+  startFret: number;
+  endFret: number;
+};
 
 export type FretPosition = {
   fret: number;
@@ -39,9 +52,49 @@ export const STANDARD_TUNING: readonly Omit<GuitarString, "positions">[] = [
   { stringNumber: 1, name: "High E", openPitchClass: "E" },
 ] as const;
 
+export const DEFAULT_LEARNING_SCALE: ScaleDescriptor = {
+  root: "A",
+  quality: "minor",
+  family: "pentatonic",
+};
+
+const SCALE_INTERVALS: Record<ScaleFamily, Record<ScaleQuality, readonly number[]>> = {
+  pentatonic: {
+    major: [0, 2, 4, 7, 9],
+    minor: [0, 3, 5, 7, 10],
+  },
+};
+
 const pitchIndexByClass = new Map(
   CHROMATIC_SCALE.map((note, index) => [note.pitchClass, index])
 );
+
+function getPitchClassAtInterval(root: PitchClass, semitones: number): PitchClass {
+  const startIndex = pitchIndexByClass.get(root);
+
+  if (startIndex === undefined) {
+    throw new Error(`Unknown pitch class: ${root}`);
+  }
+
+  return CHROMATIC_SCALE[(startIndex + semitones) % CHROMATIC_SCALE.length].pitchClass;
+}
+
+export function getScalePitchClasses(descriptor: ScaleDescriptor): Set<PitchClass> {
+  const intervals = SCALE_INTERVALS[descriptor.family][descriptor.quality];
+
+  return new Set(intervals.map((interval) => getPitchClassAtInterval(descriptor.root, interval)));
+}
+
+export function getFullFretWindow(maxFret: number): FretWindow {
+  return {
+    startFret: 0,
+    endFret: Math.max(0, Math.floor(maxFret)),
+  };
+}
+
+export function isFretInWindow(fret: number, window: FretWindow): boolean {
+  return fret >= window.startFret && fret <= window.endFret;
+}
 
 function getPitchAtFret(openPitchClass: PitchClass, fret: number) {
   const startIndex = pitchIndexByClass.get(openPitchClass);

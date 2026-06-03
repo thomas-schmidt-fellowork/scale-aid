@@ -1,7 +1,7 @@
 'use client';
 
 import * as Popover from "@radix-ui/react-popover";
-import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, EyeOff, RotateCcw } from "lucide-react";
 import { Fragment, type ReactNode, useRef, useState } from "react";
 
 import BasicScalesToolbar from "@/app/components/basic-scales/basic-scales-toolbar";
@@ -49,6 +49,7 @@ type NoteCellProps = {
   position: FretPosition;
   guitarString: GuitarString;
   maxFret: number;
+  isStringHidden: boolean;
   isRootTone: boolean;
   isScaleTone: boolean;
   isAccentScaleTone: boolean;
@@ -59,10 +60,12 @@ type NoteCellProps = {
 type OpenStringCellProps = {
   position: FretPosition;
   guitarString: GuitarString;
+  isStringHidden: boolean;
   isRootTone: boolean;
   isScaleTone: boolean;
   isAccentScaleTone: boolean;
   isWithinActiveWindow: boolean;
+  onToggleStringVisibility: () => void;
   scaleSelector?: ScaleSelectorState;
 };
 
@@ -136,10 +139,12 @@ function ScaleRootSelector({ label, scaleSelector, children }: ScaleRootSelector
 function OpenStringCell({
   position,
   guitarString,
+  isStringHidden,
   isRootTone,
   isScaleTone,
   isAccentScaleTone,
   isWithinActiveWindow,
+  onToggleStringVisibility,
   scaleSelector,
 }: OpenStringCellProps) {
   const stringThickness = getStringThickness(guitarString.stringNumber);
@@ -160,37 +165,60 @@ function OpenStringCell({
     : isActiveScaleTone
       ? "border-[rgba(255,82,82,0.45)] bg-[rgba(255,64,64,0.08)]"
       : "border-transparent bg-transparent";
+  const labelClasses = isStringHidden
+    ? "text-white/36"
+    : openNoteClasses;
+  const ringClasses = isStringHidden ? "border-transparent bg-transparent" : openNoteRingClasses;
 
   return (
     <div
       className={`relative flex h-[clamp(2.2rem,8.2svh,4.4rem)] items-center justify-center pr-1 ${cellDimClasses}`}
     >
-      <div
-        className="absolute right-0 top-1/2 h-px w-[24%] -translate-y-1/2 rounded-full"
-        style={{
-          height: stringThickness,
-          background: `linear-gradient(90deg, ${stringAccent.edge}, ${stringAccent.base} 24%, ${stringAccent.base})`,
-          boxShadow: `0 0 6px ${stringAccent.glow}`,
-        }}
-      />
-      {scaleSelector ? (
+      <button
+        type="button"
+        onClick={onToggleStringVisibility}
+        aria-pressed={isStringHidden}
+        aria-label={
+          isStringHidden
+            ? `${guitarString.name}-Saite einblenden`
+            : `${guitarString.name}-Saite ausblenden`
+        }
+        className="absolute left-1/2 top-[0.18rem] z-20 inline-flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full border border-white/10 bg-[rgba(10,12,17,0.92)] text-[var(--muted-strong)] shadow-[0_4px_10px_rgba(0,0,0,0.24)] transition hover:border-white/18 hover:bg-white/[0.05] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
+      >
+        {isStringHidden ? (
+          <EyeOff className="h-2.5 w-2.5" strokeWidth={2} />
+        ) : (
+          <Eye className="h-2.5 w-2.5" strokeWidth={2} />
+        )}
+      </button>
+      {!isStringHidden ? (
+        <div
+          className="absolute right-0 top-1/2 h-px w-[24%] -translate-y-1/2 rounded-full"
+          style={{
+            height: stringThickness,
+            background: `linear-gradient(90deg, ${stringAccent.edge}, ${stringAccent.base} 24%, ${stringAccent.base})`,
+            boxShadow: `0 0 6px ${stringAccent.glow}`,
+          }}
+        />
+      ) : null}
+      {scaleSelector && !isStringHidden ? (
         <ScaleRootSelector label={position.label} scaleSelector={scaleSelector}>
           <button
             type="button"
             aria-label={`${position.label} als neue Tonart waehlen`}
-            className={`relative z-10 inline-flex cursor-pointer items-center justify-center rounded-full border p-[2px] transition hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 ${openNoteRingClasses}`}
+            className={`relative z-10 inline-flex cursor-pointer items-center justify-center rounded-full border p-[2px] transition hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 ${ringClasses}`}
           >
             <span
-              className={`inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-[clamp(0.12rem,0.24vw,0.35rem)] py-[clamp(0.08rem,0.16vw,0.18rem)] text-[clamp(0.78rem,1.55vw,1.45rem)] font-semibold leading-none ${openNoteClasses}`}
+              className={`inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-[clamp(0.12rem,0.24vw,0.35rem)] py-[clamp(0.08rem,0.16vw,0.18rem)] text-[clamp(0.78rem,1.55vw,1.45rem)] font-semibold leading-none ${labelClasses}`}
             >
               {position.label}
             </span>
           </button>
         </ScaleRootSelector>
       ) : (
-        <span className={`relative z-10 inline-flex items-center justify-center rounded-full border p-[2px] ${openNoteRingClasses}`}>
+        <span className={`relative z-10 inline-flex items-center justify-center rounded-full border p-[2px] ${ringClasses}`}>
           <span
-            className={`inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-[clamp(0.12rem,0.24vw,0.35rem)] py-[clamp(0.08rem,0.16vw,0.18rem)] text-[clamp(0.78rem,1.55vw,1.45rem)] font-semibold leading-none ${openNoteClasses}`}
+            className={`inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-[clamp(0.12rem,0.24vw,0.35rem)] py-[clamp(0.08rem,0.16vw,0.18rem)] text-[clamp(0.78rem,1.55vw,1.45rem)] font-semibold leading-none ${labelClasses}`}
           >
             {position.label}
           </span>
@@ -204,6 +232,7 @@ function NoteCell({
   position,
   guitarString,
   maxFret,
+  isStringHidden,
   isRootTone,
   isScaleTone,
   isAccentScaleTone,
@@ -247,15 +276,17 @@ function NoteCell({
       <div className="absolute inset-x-0 bottom-0 h-px bg-black/35" />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_28%,transparent_72%,rgba(0,0,0,0.2))]" />
       <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.02)]" />
-      <div
-        className="absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-full"
-        style={{
-          height: stringThickness,
-          background: `linear-gradient(90deg, ${stringAccent.edge} 0%, ${stringAccent.base} 14%, ${stringAccent.base} 86%, ${stringAccent.edge} 100%)`,
-          boxShadow: `0 0 6px ${stringAccent.glow}`,
-        }}
-      />
-      {scaleSelector ? (
+      {!isStringHidden ? (
+        <div
+          className="absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            height: stringThickness,
+            background: `linear-gradient(90deg, ${stringAccent.edge} 0%, ${stringAccent.base} 14%, ${stringAccent.base} 86%, ${stringAccent.edge} 100%)`,
+            boxShadow: `0 0 6px ${stringAccent.glow}`,
+          }}
+        />
+      ) : null}
+      {!isStringHidden && scaleSelector ? (
         <ScaleRootSelector label={position.label} scaleSelector={scaleSelector}>
           <button
             type="button"
@@ -267,13 +298,13 @@ function NoteCell({
             </span>
           </button>
         </ScaleRootSelector>
-      ) : (
+      ) : !isStringHidden ? (
         <span className={`relative z-10 inline-flex rounded-full border p-[2px] ${ringStateClasses}`}>
           <span className={`inline-flex min-w-0 max-w-[94%] items-center justify-center rounded-full border px-[clamp(0.08rem,0.22vw,0.4rem)] py-[clamp(0.08rem,0.16vw,0.2rem)] text-[clamp(0.3rem,0.76vw,0.82rem)] font-semibold leading-none tracking-[-0.02em] sm:px-2 sm:py-0.75 ${highlightStateClasses}`}>
             {position.label}
           </span>
         </span>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -294,6 +325,9 @@ export default function Fretboard({ maxFret = DEFAULT_MAX_FRET }: FretboardProps
   const [activeScaleSelectorTarget, setActiveScaleSelectorTarget] =
     useState<ScaleSelectorTarget | null>(null);
   const [isScaleSelectorOpen, setIsScaleSelectorOpen] = useState(false);
+  const [hiddenStringNumbers, setHiddenStringNumbers] = useState<Set<GuitarString["stringNumber"]>>(
+    new Set()
+  );
   const strings = getFretboard(maxFret, noteLabelMode);
   const activeScalePitchClasses = getScalePitchClasses(learningScale);
   const activeScaleAccentPitchClasses = getScaleAccentPitchClasses(learningScale);
@@ -370,6 +404,20 @@ export default function Fretboard({ maxFret = DEFAULT_MAX_FRET }: FretboardProps
     };
   }
 
+  function toggleStringVisibility(stringNumber: GuitarString["stringNumber"]) {
+    setHiddenStringNumbers((current) => {
+      const next = new Set(current);
+
+      if (next.has(stringNumber)) {
+        next.delete(stringNumber);
+      } else {
+        next.add(stringNumber);
+      }
+
+      return next;
+    });
+  }
+
   return (
     <section className="flex h-full w-full items-center justify-center px-1.5 py-2 sm:px-3 sm:py-3">
       <div className="w-full space-y-2">
@@ -423,49 +471,56 @@ export default function Fretboard({ maxFret = DEFAULT_MAX_FRET }: FretboardProps
               </div>
             </div>
 
-            {displayStrings.map((guitarString) => (
-              <Fragment key={guitarString.stringNumber}>
-                <OpenStringCell
-                  position={guitarString.positions[0]}
-                  guitarString={guitarString}
-                  isRootTone={learningScale.root === guitarString.positions[0].pitchClass}
-                  isScaleTone={activeScalePitchClasses.has(guitarString.positions[0].pitchClass)}
-                  isAccentScaleTone={activeScaleAccentPitchClasses.has(
-                    guitarString.positions[0].pitchClass
-                  )}
-                  isWithinActiveWindow={isFretInWindow(
-                    guitarString.positions[0].fret,
-                    activePatternWindow
-                  )}
-                  scaleSelector={
-                    guitarString.stringNumber === 6
-                      ? getScaleSelector({
-                          root: guitarString.positions[0].pitchClass,
-                          rootFret: guitarString.positions[0].fret,
-                        })
-                      : undefined
-                  }
-                />
+            {displayStrings.map((guitarString) => {
+              const isStringHidden = hiddenStringNumbers.has(guitarString.stringNumber);
 
-                {guitarString.positions.slice(1).map((position) => (
-                  <NoteCell
-                    key={`${guitarString.stringNumber}-${position.fret}`}
-                    position={position}
+              return (
+                <Fragment key={guitarString.stringNumber}>
+                  <OpenStringCell
+                    position={guitarString.positions[0]}
                     guitarString={guitarString}
-                    maxFret={maxFret}
-                    isRootTone={learningScale.root === position.pitchClass}
-                    isScaleTone={activeScalePitchClasses.has(position.pitchClass)}
-                    isAccentScaleTone={activeScaleAccentPitchClasses.has(position.pitchClass)}
-                    isWithinActiveWindow={isFretInWindow(position.fret, activePatternWindow)}
+                    isStringHidden={isStringHidden}
+                    isRootTone={learningScale.root === guitarString.positions[0].pitchClass}
+                    isScaleTone={activeScalePitchClasses.has(guitarString.positions[0].pitchClass)}
+                    isAccentScaleTone={activeScaleAccentPitchClasses.has(
+                      guitarString.positions[0].pitchClass
+                    )}
+                    isWithinActiveWindow={isFretInWindow(
+                      guitarString.positions[0].fret,
+                      activePatternWindow
+                    )}
+                    onToggleStringVisibility={() => toggleStringVisibility(guitarString.stringNumber)}
                     scaleSelector={
                       guitarString.stringNumber === 6
-                        ? getScaleSelector({ root: position.pitchClass, rootFret: position.fret })
+                        ? getScaleSelector({
+                            root: guitarString.positions[0].pitchClass,
+                            rootFret: guitarString.positions[0].fret,
+                          })
                         : undefined
                     }
                   />
-                ))}
-              </Fragment>
-            ))}
+
+                  {guitarString.positions.slice(1).map((position) => (
+                    <NoteCell
+                      key={`${guitarString.stringNumber}-${position.fret}`}
+                      position={position}
+                      guitarString={guitarString}
+                      maxFret={maxFret}
+                      isStringHidden={isStringHidden}
+                      isRootTone={learningScale.root === position.pitchClass}
+                      isScaleTone={activeScalePitchClasses.has(position.pitchClass)}
+                      isAccentScaleTone={activeScaleAccentPitchClasses.has(position.pitchClass)}
+                      isWithinActiveWindow={isFretInWindow(position.fret, activePatternWindow)}
+                      scaleSelector={
+                        guitarString.stringNumber === 6
+                          ? getScaleSelector({ root: position.pitchClass, rootFret: position.fret })
+                          : undefined
+                      }
+                    />
+                  ))}
+                </Fragment>
+              );
+            })}
 
             <div className="h-5 sm:h-7" />
             {fretNumbers.map((fret) => (

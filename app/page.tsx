@@ -4,7 +4,7 @@ import Link from "next/link";
 import { getSiteUrl, siteName } from "@/app/lib/site";
 
 const landingDescription =
-  "Scale Aid hilft dir dabei, aus der klassischen A-Moll-Pentatonik auszubrechen, Dur- und Molltonarten zu verstehen und das Fretboard Schritt für Schritt zu öffnen.";
+  "Scale Aid macht Scales üben auf der Gitarre leichter: mit A-Moll-Pentatonik starten, in jede Tonart wechseln, Blues Notes dazunehmen und Schritt für Schritt das Griffbrett erweitern.";
 
 export const metadata: Metadata = {
   title: "Gitarrenskalen üben und lernen",
@@ -48,9 +48,9 @@ const structuredData = {
         priceCurrency: "EUR",
       },
       featureList: [
-        "Von der A-Moll-Pentatonik aus weiterlernen",
-        "Dur und Moll auf dem Fretboard besser einordnen",
-        "Das Griffbrett Schritt für Schritt längs erweitern",
+        "Mit der A-Moll-Pentatonik starten",
+        "Pentatonik in jede Tonart auf dem Griffbrett übertragen",
+        "Blues Notes und volle Tonleitern Schritt für Schritt dazunehmen",
       ],
     },
   ],
@@ -66,7 +66,7 @@ export default function Home() {
         }}
       />
 
-      <div className="mx-auto flex w-full max-w-6xl flex-col px-6 py-6 sm:px-8 lg:px-10 lg:py-8">
+      <div className="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-6 py-6 sm:px-8 lg:px-10 lg:py-8">
         <header className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[var(--accent)] shadow-[0_0_16px_rgba(77,255,196,0.42)]" />
@@ -77,46 +77,56 @@ export default function Home() {
 
           <Link
             href="/basic-scales"
-            className="inline-flex items-center text-sm font-medium text-white/62 transition hover:text-white"
+            className="inline-flex items-center rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold shadow-[0_10px_30px_rgba(77,255,196,0.18)] transition hover:brightness-105"
+            style={{ color: "#04110d" }}
           >
             Basic Scales öffnen
           </Link>
         </header>
 
-        <section className="flex min-h-[calc(100svh-8rem)] items-center py-16 sm:py-20 lg:py-24">
-          <div className="max-w-4xl space-y-8">
-            <h1 className="max-w-4xl text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-[4.75rem] lg:leading-[0.96]">
-              Raus aus der A-Moll-Pentatonik. Rein ins Verständnis für Dur, Moll und das ganze Fretboard.
+        <section className="grid flex-1 gap-10 py-14 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.72fr)] lg:items-center lg:py-10">
+          <div className="max-w-4xl space-y-7">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]/90">
+              Scales üben ohne Druck
+            </p>
+            <h1 className="max-w-4xl text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl lg:text-[4.5rem] lg:leading-[0.97]">
+              Mach mehr aus deiner A-Moll-Pentatonik.
             </h1>
             <p className="max-w-2xl text-lg leading-8 text-white/68">
-              Scale Aid hilft dir dabei, vom bekannten Grundmuster aus weiterzugehen, Tonarten besser zu verstehen und dich Schritt für Schritt längs über das Griffbrett zu bewegen, damit du Songs nicht nur in einer Box begleitest.
+              Starte mit dem Pattern, das du kennst. Spiele es in anderen Tonarten, nimm Blues Notes dazu und erweitere es Stück für Stück zur vollen Tonleiter über das Griffbrett.
             </p>
 
             <div>
               <Link
                 href="/basic-scales"
-                className="inline-flex items-center rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold !text-black shadow-[0_10px_30px_rgba(77,255,196,0.18)] transition hover:brightness-105"
+                className="inline-flex items-center rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold shadow-[0_10px_30px_rgba(77,255,196,0.18)] transition hover:brightness-105"
                 style={{ color: "#04110d" }}
               >
                 Basic Scales starten
               </Link>
             </div>
           </div>
-        </section>
 
-        <section className="max-w-3xl space-y-5 pb-20" id="warum">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]/90">
-            Warum das hilft
-          </p>
-          <h2 className="text-3xl font-semibold tracking-[-0.03em] text-white sm:text-4xl">
-            Das Ziel ist, das Griffbrett nicht nur auswendig zu kennen, sondern musikalisch zu verstehen.
-          </h2>
-          <p className="text-base leading-8 text-white/64">
-            Viele Gitarristen starten mit der klassischen A-Moll-Pentatonik und bleiben dann genau dort hängen. Scale Aid setzt an diesem Punkt an und macht den nächsten Schritt sichtbar: Was gehört zur Tonart, wie hängen Moll und Dur zusammen und wie öffnet sich das Pattern in weitere Lagen?
-          </p>
-          <p className="text-base leading-8 text-white/64">
-            So wird aus einem bekannten Shape nach und nach echte Orientierung. Wenn du die Tonart eines Songs kennst, kannst du dadurch fundierter mitspielen und dich sicherer über den Hals bewegen.
-          </p>
+          <div className="rounded-[1.8rem] border border-white/10 bg-white/[0.025] p-5">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-white/38">
+              Lernweg
+            </p>
+            <div className="space-y-3">
+              {[
+                "Am-Pentatonik als Grundlage",
+                "Pattern in jeder Tonart spielen",
+                "Blues Notes gezielt einsetzen",
+                "Zur vollständigen Tonleiter erweitern",
+              ].map((step, index) => (
+                <div key={step} className="flex items-center gap-3 text-sm text-white/66">
+                  <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[rgba(77,255,196,0.18)] bg-[rgba(77,255,196,0.07)] text-xs font-semibold text-[var(--accent)]">
+                    {index + 1}
+                  </span>
+                  <span>{step}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
       </div>
     </main>

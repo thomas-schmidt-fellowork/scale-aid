@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-import AppShell from "@/app/components/app-shell";
+import BasicScalesWorkspace from "@/app/components/basic-scales/basic-scales-workspace";
 
 export default function BasicScalesLayout({ children }: { children: ReactNode }) {
-  return <AppShell>{children}</AppShell>;
+  return <BasicScalesWorkspace>{children}</BasicScalesWorkspace>;
 }

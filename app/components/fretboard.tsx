@@ -4,7 +4,8 @@ import * as Popover from "@radix-ui/react-popover";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import { Fragment, type ReactNode, useRef, useState } from "react";
 
-import { useDisplaySettings } from "@/app/components/app-shell";
+import BasicScalesToolbar from "@/app/components/basic-scales/basic-scales-toolbar";
+import { useBasicScales } from "@/app/components/basic-scales/basic-scales-context";
 import ScaleSelectionControls from "@/app/components/scale-selection-controls";
 import {
   DEFAULT_MAX_FRET,
@@ -280,7 +281,7 @@ export default function Fretboard({ maxFret = DEFAULT_MAX_FRET }: FretboardProps
     selectLearningScale,
     stepPatternLeft,
     stepPatternRight,
-  } = useDisplaySettings();
+  } = useBasicScales();
   const scaleSelectorCloseTimeoutRef = useRef<number | null>(null);
   const [activeScaleSelectorTarget, setActiveScaleSelectorTarget] =
     useState<ScaleSelectorTarget | null>(null);
@@ -363,8 +364,13 @@ export default function Fretboard({ maxFret = DEFAULT_MAX_FRET }: FretboardProps
 
   return (
     <section className="flex h-full w-full items-center justify-center px-1.5 py-2 sm:px-3 sm:py-3">
-      <div className="w-full rounded-[1.45rem] border border-white/24 bg-[linear-gradient(180deg,rgba(24,26,32,0.98),rgba(8,9,13,0.99))] p-[clamp(0.35rem,0.9vw,0.7rem)] shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_16px_50px_rgba(0,0,0,0.62)]">
-        <div className="rounded-[1.15rem] border border-white/12 bg-[linear-gradient(180deg,rgba(14,15,20,0.98),rgba(5,6,9,0.98))] p-[clamp(0.25rem,0.65vw,0.55rem)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_0_0_1px_rgba(255,255,255,0.03)]">
+      <div className="w-full space-y-2">
+        <div className="px-[clamp(0.35rem,0.9vw,0.7rem)]">
+          <BasicScalesToolbar />
+        </div>
+
+        <div className="w-full rounded-[1.45rem] border border-white/24 bg-[linear-gradient(180deg,rgba(24,26,32,0.98),rgba(8,9,13,0.99))] p-[clamp(0.35rem,0.9vw,0.7rem)] shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_16px_50px_rgba(0,0,0,0.62)]">
+          <div className="rounded-[1.15rem] border border-white/12 bg-[linear-gradient(180deg,rgba(14,15,20,0.98),rgba(5,6,9,0.98))] p-[clamp(0.25rem,0.65vw,0.55rem)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_0_0_1px_rgba(255,255,255,0.03)]">
           <div className="grid gap-y-1.5 sm:gap-y-2" style={{ gridTemplateColumns }}>
             <div className="col-span-full relative grid h-8" style={{ gridTemplateColumns }}>
               <div />
@@ -460,6 +466,7 @@ export default function Fretboard({ maxFret = DEFAULT_MAX_FRET }: FretboardProps
                 {fret}
               </div>
             ))}
+          </div>
           </div>
         </div>
       </div>

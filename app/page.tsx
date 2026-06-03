@@ -66,24 +66,7 @@ export default function Home() {
         }}
       />
 
-      <div className="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-6 py-6 sm:px-8 lg:px-10 lg:py-8">
-        <header className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[var(--accent)] shadow-[0_0_16px_rgba(77,255,196,0.42)]" />
-            <span className="text-sm font-semibold uppercase tracking-[0.28em] text-white/92">
-              {siteName}
-            </span>
-          </div>
-
-          <Link
-            href="/basic-scales"
-            className="inline-flex items-center rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold shadow-[0_10px_30px_rgba(77,255,196,0.18)] transition hover:brightness-105"
-            style={{ color: "#04110d" }}
-          >
-            Basic Scales öffnen
-          </Link>
-        </header>
-
+      <div className="mx-auto flex min-h-[calc(100svh-3.5rem)] w-full max-w-6xl flex-col px-6 py-6 sm:px-8 lg:px-10 lg:py-8">
         <section className="grid flex-1 gap-10 py-14 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.72fr)] lg:items-center lg:py-10">
           <div className="max-w-4xl space-y-7">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]/90">
@@ -102,7 +85,7 @@ export default function Home() {
                 className="inline-flex items-center rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold shadow-[0_10px_30px_rgba(77,255,196,0.18)] transition hover:brightness-105"
                 style={{ color: "#04110d" }}
               >
-                Basic Scales starten
+                Scales starten
               </Link>
             </div>
           </div>

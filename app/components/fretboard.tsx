@@ -49,6 +49,7 @@ type NoteCellProps = {
   position: FretPosition;
   guitarString: GuitarString;
   maxFret: number;
+  isRootTone: boolean;
   isScaleTone: boolean;
   isAccentScaleTone: boolean;
   isWithinActiveWindow: boolean;
@@ -58,6 +59,7 @@ type NoteCellProps = {
 type OpenStringCellProps = {
   position: FretPosition;
   guitarString: GuitarString;
+  isRootTone: boolean;
   isScaleTone: boolean;
   isAccentScaleTone: boolean;
   isWithinActiveWindow: boolean;
@@ -134,6 +136,7 @@ function ScaleRootSelector({ label, scaleSelector, children }: ScaleRootSelector
 function OpenStringCell({
   position,
   guitarString,
+  isRootTone,
   isScaleTone,
   isAccentScaleTone,
   isWithinActiveWindow,
@@ -141,9 +144,22 @@ function OpenStringCell({
 }: OpenStringCellProps) {
   const stringThickness = getStringThickness(guitarString.stringNumber);
   const stringAccent = getStringAccent(guitarString.stringNumber);
+  const isActiveRootTone = isRootTone && isWithinActiveWindow;
   const isActiveScaleTone = isScaleTone && isWithinActiveWindow;
   const isActiveAccentTone = isAccentScaleTone && isWithinActiveWindow;
   const cellDimClasses = isWithinActiveWindow ? "opacity-100" : "opacity-45";
+  const openNoteClasses = isActiveAccentTone
+    ? "border border-[rgba(92,158,255,0.72)] bg-[rgba(11,28,62,0.52)] text-[#f1f7ff] shadow-[0_0_0_2px_rgba(92,158,255,0.24)]"
+    : isActiveRootTone
+      ? "border border-[rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.45)] text-[#ff8a8a] shadow-[0_0_0_2px_rgba(255,92,92,0.24)]"
+      : isActiveScaleTone
+        ? "border border-[rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.45)] text-[#fff1f1] shadow-[0_0_0_2px_rgba(255,92,92,0.24)]"
+        : "text-white";
+  const openNoteRingClasses = isActiveAccentTone
+    ? "border-[rgba(92,158,255,0.42)] bg-[rgba(92,158,255,0.08)]"
+    : isActiveScaleTone
+      ? "border-[rgba(255,82,82,0.45)] bg-[rgba(255,64,64,0.08)]"
+      : "border-transparent bg-transparent";
 
   return (
     <div
@@ -162,31 +178,19 @@ function OpenStringCell({
           <button
             type="button"
             aria-label={`${position.label} als neue Tonart waehlen`}
-            className="relative z-10 inline-flex cursor-pointer items-center justify-center rounded-full p-[2px] transition hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
+            className={`relative z-10 inline-flex cursor-pointer items-center justify-center rounded-full border p-[2px] transition hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 ${openNoteRingClasses}`}
           >
             <span
-              className={`inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-[clamp(0.12rem,0.24vw,0.35rem)] py-[clamp(0.08rem,0.16vw,0.18rem)] text-[clamp(0.78rem,1.55vw,1.45rem)] font-semibold leading-none ${
-                isActiveAccentTone
-                  ? "border border-[rgba(92,158,255,0.72)] bg-[rgba(11,28,62,0.52)] text-[#f1f7ff] shadow-[0_0_0_2px_rgba(92,158,255,0.24)]"
-                  : isActiveScaleTone
-                  ? "border border-[rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.45)] text-[#fff1f1] shadow-[0_0_0_2px_rgba(255,92,92,0.24)]"
-                  : "text-white"
-              }`}
+              className={`inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-[clamp(0.12rem,0.24vw,0.35rem)] py-[clamp(0.08rem,0.16vw,0.18rem)] text-[clamp(0.78rem,1.55vw,1.45rem)] font-semibold leading-none ${openNoteClasses}`}
             >
               {position.label}
             </span>
           </button>
         </ScaleRootSelector>
       ) : (
-        <span className="relative z-10 inline-flex items-center justify-center rounded-full p-[2px]">
+        <span className={`relative z-10 inline-flex items-center justify-center rounded-full border p-[2px] ${openNoteRingClasses}`}>
           <span
-            className={`inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-[clamp(0.12rem,0.24vw,0.35rem)] py-[clamp(0.08rem,0.16vw,0.18rem)] text-[clamp(0.78rem,1.55vw,1.45rem)] font-semibold leading-none ${
-              isActiveAccentTone
-                ? "border border-[rgba(92,158,255,0.72)] bg-[rgba(11,28,62,0.52)] text-[#f1f7ff] shadow-[0_0_0_2px_rgba(92,158,255,0.24)]"
-                : isActiveScaleTone
-                ? "border border-[rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.45)] text-[#fff1f1] shadow-[0_0_0_2px_rgba(255,92,92,0.24)]"
-                : "text-white"
-            }`}
+            className={`inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-[clamp(0.12rem,0.24vw,0.35rem)] py-[clamp(0.08rem,0.16vw,0.18rem)] text-[clamp(0.78rem,1.55vw,1.45rem)] font-semibold leading-none ${openNoteClasses}`}
           >
             {position.label}
           </span>
@@ -200,6 +204,7 @@ function NoteCell({
   position,
   guitarString,
   maxFret,
+  isRootTone,
   isScaleTone,
   isAccentScaleTone,
   isWithinActiveWindow,
@@ -209,6 +214,7 @@ function NoteCell({
   const isLastFret = position.fret === maxFret;
   const stringThickness = getStringThickness(guitarString.stringNumber);
   const stringAccent = getStringAccent(guitarString.stringNumber);
+  const isActiveRootTone = isRootTone && isWithinActiveWindow;
   const isActiveScaleTone = isScaleTone && isWithinActiveWindow;
   const isActiveAccentTone = isAccentScaleTone && isWithinActiveWindow;
   const baseCellBackground =
@@ -217,8 +223,10 @@ function NoteCell({
       : "bg-[linear-gradient(180deg,rgba(26,28,34,0.98),rgba(11,12,16,0.98))]";
   const highlightStateClasses = isActiveAccentTone
     ? "border-[color:rgba(92,158,255,0.72)] bg-[rgba(12,29,60,0.96)] text-[#f1f7ff] shadow-[0_0_0_1px_rgba(132,184,255,0.18),0_0_12px_rgba(92,158,255,0.18)]"
-    : isActiveScaleTone
-      ? "border-[color:rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.96)] text-[#fff1f1] shadow-[0_0_0_1px_rgba(255,120,120,0.18),0_0_12px_rgba(255,76,76,0.16)]"
+    : isActiveRootTone
+      ? "border-[color:rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.96)] text-[#ff8a8a] shadow-[0_0_0_1px_rgba(255,120,120,0.18),0_0_12px_rgba(255,76,76,0.16)]"
+      : isActiveScaleTone
+        ? "border-[color:rgba(255,92,92,0.72)] bg-[rgba(58,10,14,0.96)] text-[#fff1f1] shadow-[0_0_0_1px_rgba(255,120,120,0.18),0_0_12px_rgba(255,76,76,0.16)]"
       : "border-[color:rgba(214,219,230,0.16)] bg-[rgba(7,8,12,0.96)] text-[rgba(230,234,241,0.72)] shadow-[0_0_0_1px_rgba(255,255,255,0.06)]";
   const ringStateClasses = isActiveAccentTone
     ? "border-[rgba(92,158,255,0.42)] bg-[rgba(92,158,255,0.08)]"
@@ -420,6 +428,7 @@ export default function Fretboard({ maxFret = DEFAULT_MAX_FRET }: FretboardProps
                 <OpenStringCell
                   position={guitarString.positions[0]}
                   guitarString={guitarString}
+                  isRootTone={learningScale.root === guitarString.positions[0].pitchClass}
                   isScaleTone={activeScalePitchClasses.has(guitarString.positions[0].pitchClass)}
                   isAccentScaleTone={activeScaleAccentPitchClasses.has(
                     guitarString.positions[0].pitchClass
@@ -444,6 +453,7 @@ export default function Fretboard({ maxFret = DEFAULT_MAX_FRET }: FretboardProps
                     position={position}
                     guitarString={guitarString}
                     maxFret={maxFret}
+                    isRootTone={learningScale.root === position.pitchClass}
                     isScaleTone={activeScalePitchClasses.has(position.pitchClass)}
                     isAccentScaleTone={activeScaleAccentPitchClasses.has(position.pitchClass)}
                     isWithinActiveWindow={isFretInWindow(position.fret, activePatternWindow)}

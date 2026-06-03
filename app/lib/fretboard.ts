@@ -17,6 +17,7 @@ export type PitchClass = (typeof CHROMATIC_SCALE)[number]["pitchClass"];
 export type NoteLabelMode = "sharp" | "full";
 export type ScaleQuality = "major" | "minor";
 export type ScaleFamily = "pentatonic" | "blues" | "diatonic";
+export type PatternLearningMode = "relative" | "quality";
 
 export type ScaleDescriptor = {
   root: PitchClass;
@@ -146,10 +147,16 @@ export function getExpandedFretWindow(
 export function getCollapsedScalePatternWindow(
   rootFret: number,
   quality: ScaleQuality,
-  maxFret: number
+  maxFret: number,
+  learningMode: PatternLearningMode = "quality"
 ): FretWindow {
   const safeMaxFret = Math.max(0, Math.floor(maxFret));
-  const preferredStartFret = quality === "minor" ? rootFret : rootFret - 1;
+  const preferredStartFret =
+    quality === "minor"
+      ? rootFret
+      : learningMode === "relative"
+        ? rootFret - 3
+        : rootFret - 1;
   const normalizedStartFret = Math.max(
     0,
     Math.min(Math.floor(preferredStartFret), Math.max(0, safeMaxFret - 3))
@@ -186,6 +193,46 @@ export function getLowestFretForPitchClass(
     if (getPitchAtFret(openPitchClass, fret).pitchClass === targetPitchClass) {
       return fret;
     }
+  }
+
+  throw new Error(`Could not map ${targetPitchClass} on string ${openPitchClass}`);
+}
+
+export function getNearestFretForPitchClass(
+  openPitchClass: PitchClass,
+  targetPitchClass: PitchClass,
+  referenceFret: number,
+  maxFret: number
+) {
+  const safeMaxFret = Math.max(0, Math.floor(maxFret));
+  const safeReferenceFret = Math.max(0, Math.min(Math.floor(referenceFret), safeMaxFret));
+  let closestFret: number | null = null;
+
+  for (let fret = 0; fret <= safeMaxFret; fret += 1) {
+    if (getPitchAtFret(openPitchClass, fret).pitchClass !== targetPitchClass) {
+      continue;
+    }
+
+    if (closestFret === null) {
+      closestFret = fret;
+      continue;
+    }
+
+    const currentDistance = Math.abs(fret - safeReferenceFret);
+    const closestDistance = Math.abs(closestFret - safeReferenceFret);
+
+    if (currentDistance < closestDistance) {
+      closestFret = fret;
+      continue;
+    }
+
+    if (currentDistance === closestDistance && fret < closestFret) {
+      closestFret = fret;
+    }
+  }
+
+  if (closestFret !== null) {
+    return closestFret;
   }
 
   throw new Error(`Could not map ${targetPitchClass} on string ${openPitchClass}`);

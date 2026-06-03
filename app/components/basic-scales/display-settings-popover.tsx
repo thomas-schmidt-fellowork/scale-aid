@@ -9,8 +9,14 @@ import { useId } from "react";
 import { useBasicScales } from "@/app/components/basic-scales/basic-scales-context";
 
 export default function DisplaySettingsPopover() {
-  const { noteLabelMode, setNoteLabelMode } = useBasicScales();
+  const {
+    noteLabelMode,
+    patternLearningMode,
+    setNoteLabelMode,
+    setPatternLearningMode,
+  } = useBasicScales();
   const compressedDisplayId = useId();
+  const relativeBoxModeId = useId();
 
   return (
     <Popover.Root>
@@ -48,8 +54,53 @@ export default function DisplaySettingsPopover() {
             </aside>
 
             <section className="p-4">
-              <div aria-hidden="true" className="mb-3 h-5" />
-              <div className="flex min-h-10 items-center gap-3">
+              <div className="space-y-4">
+                <div className="flex min-h-10 items-center gap-3">
+                  <Switch.Root
+                    id={relativeBoxModeId}
+                    checked={patternLearningMode === "relative"}
+                    onCheckedChange={(checked) =>
+                      setPatternLearningMode(checked ? "relative" : "quality")
+                    }
+                    className="relative inline-flex h-4 w-8 shrink-0 cursor-pointer items-center rounded-full border border-white/10 bg-white/[0.06] p-[2px] shadow-[inset_0_1px_1px_rgba(0,0,0,0.28)] outline-none transition focus-visible:ring-2 focus-visible:ring-white/20 data-[state=checked]:border-[color:rgba(77,255,196,0.3)] data-[state=checked]:bg-[rgba(77,255,196,0.18)]"
+                  >
+                    <Switch.Thumb className="block h-3 w-3 rounded-full bg-white/92 shadow-[0_1px_4px_rgba(0,0,0,0.28)] transition-transform duration-200 will-change-transform data-[state=checked]:translate-x-4 data-[state=checked]:bg-[var(--accent)]" />
+                  </Switch.Root>
+
+                  <label htmlFor={relativeBoxModeId} className="text-sm font-medium text-white">
+                    Dur über relative Moll-Box zeigen
+                  </label>
+
+                  <Tooltip.Provider delayDuration={250} disableHoverableContent>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <button
+                          type="button"
+                          aria-label="Mehr Informationen zur relativen Box-Darstellung"
+                          className="ml-auto inline-flex h-5 w-5 items-center justify-center rounded-full text-[var(--muted)] transition hover:text-white"
+                        >
+                          <CircleHelp className="h-3.5 w-3.5" strokeWidth={2} />
+                        </button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content
+                          side="top"
+                          align="end"
+                          sideOffset={8}
+                          className="z-50 max-w-80 rounded-xl border border-white/12 bg-[rgba(12,14,20,0.96)] px-3 py-2.5 text-xs leading-5 text-[var(--muted-strong)] shadow-[0_16px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+                        >
+                          <div className="space-y-1">
+                            <p>Zeigt Dur und die relative Moll-Skala in derselben Box-Lage.</p>
+                            <p>Beispiel: C-Dur nutzt dann dieselbe Standardbox wie A-Moll.</p>
+                          </div>
+                          <Tooltip.Arrow className="fill-[rgba(12,14,20,0.96)]" />
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
+                </div>
+
+                <div className="flex min-h-10 items-center gap-3">
                 <Switch.Root
                   id={compressedDisplayId}
                   checked={noteLabelMode === "sharp"}
@@ -90,6 +141,7 @@ export default function DisplaySettingsPopover() {
                     </Tooltip.Portal>
                   </Tooltip.Root>
                 </Tooltip.Provider>
+                </div>
               </div>
             </section>
           </div>

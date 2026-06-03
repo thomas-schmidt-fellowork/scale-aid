@@ -7,7 +7,7 @@ import { useBasicScales } from "@/app/components/basic-scales/basic-scales-conte
 import ScaleSelectionControls from "@/app/components/scale-selection-controls";
 import {
   DEFAULT_MAX_FRET,
-  getLowestFretForPitchClass,
+  getNearestFretForPitchClass,
   PITCH_CLASSES,
   STANDARD_TUNING,
   type PitchClass,
@@ -27,7 +27,7 @@ const familyLabelByValue: Record<ScaleFamily, string> = {
 };
 
 export default function ScaleSummaryPicker() {
-  const { learningScale, selectLearningScale } = useBasicScales();
+  const { learningScale, selectLearningScale, selectedRootFret } = useBasicScales();
   const [isOpen, setIsOpen] = useState(false);
   const closeTimeoutRef = useRef<number | null>(null);
 
@@ -52,11 +52,21 @@ export default function ScaleSummaryPicker() {
   }
 
   function selectScaleRoot(root: PitchClass, family: ScaleFamily, quality: ScaleQuality) {
+    const nextRootFret =
+      root === learningScale.root
+        ? selectedRootFret
+        : getNearestFretForPitchClass(
+            STANDARD_TUNING[0].openPitchClass,
+            root,
+            selectedRootFret,
+            DEFAULT_MAX_FRET
+          );
+
     selectLearningScale(
       root,
       family,
       quality,
-      getLowestFretForPitchClass(STANDARD_TUNING[0].openPitchClass, root, DEFAULT_MAX_FRET)
+      nextRootFret
     );
   }
 
